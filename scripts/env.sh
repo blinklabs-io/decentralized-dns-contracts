@@ -2,7 +2,21 @@
 
 # Path
 
-export REPO_HOME="$HOME/cdnsd/decentralized-dns-contracts"
+find_and_set_repo_home() {
+    local target_folder="decentralized-dns-contracts"
+
+    local repo_path
+    repo_path=$(find /home -type d -name "$target_folder" -not -path '*/\.*' -print -quit 2>/dev/null)
+
+    if [ -n "$repo_path" ]; then
+        echo "$repo_path"
+    else
+        echo "$target_folder not found."
+        exit
+    fi
+}
+
+REPO_HOME=$(find_and_set_repo_home)
 export NETWORK_DIR_PATH="$REPO_HOME/preprod"
 export TESTNET_MAGIC=1
 
@@ -77,7 +91,7 @@ get_UTxO_lovelace_amount() {
 
 # $1 = tx file path
 # $2 = address first output
-tx_submitted(){
+tx_submitted() {
     tx_Id=$(cardano-cli conway transaction txid --tx-file $1)
     cardano-cli query utxo --testnet-magic ${TESTNET_MAGIC} --address $2 --out-file tmp.utxos
     presence=$(jq -r ".[\"$tx_id#0\"]" "tmp.utxos")
@@ -85,18 +99,16 @@ tx_submitted(){
     start_time_seconds=$(date +%s)
 
     if [[ "$TESTNET_MAGIC" == "42" ]]; then
-        while [ "$presence" == "null" ] && [[ $(( $run_time_seconds - $start_time_seconds )) < 5 ]]
-        do
+        while [ "$presence" == "null" ] && [[ $(($run_time_seconds - $start_time_seconds)) < 5 ]]; do
             run_time_seconds=$(date +%s)
 
             cardano-cli query utxo --testnet-magic ${TESTNET_MAGIC} --address $2 --out-file tmp.utxos
             presence=$(jq -r ".[\"$tx_Id#0\"]" "tmp.utxos")
         done
         sleep 1
-    else 
+    else
 
-        while [ "$presence" == "null" ] && [[ $(( $run_time_seconds - $start_time_seconds )) < 600 ]]
-        do
+        while [ "$presence" == "null" ] && [[ $(($run_time_seconds - $start_time_seconds)) < 600 ]]; do
             run_time_seconds=$(date +%s)
 
             cardano-cli query utxo --testnet-magic ${TESTNET_MAGIC} --address $2 --out-file tmp.utxos
