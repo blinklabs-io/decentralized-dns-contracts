@@ -99,7 +99,7 @@ tx_submitted() {
     start_time_seconds=$(date +%s)
 
     if [[ "$TESTNET_MAGIC" == "42" ]]; then
-        while [ "$presence" == "null" ] && [[ $(($run_time_seconds - $start_time_seconds)) < 5 ]]; do
+        while [ "$presence" == "null" ] && [[ $(($run_time_seconds - $start_time_seconds)) -lt 5 ]]; do
             run_time_seconds=$(date +%s)
 
             cardano-cli query utxo --testnet-magic ${TESTNET_MAGIC} --address $2 --out-file tmp.utxos
@@ -108,13 +108,19 @@ tx_submitted() {
         sleep 1
     else
 
-        while [ "$presence" == "null" ] && [[ $(($run_time_seconds - $start_time_seconds)) < 600 ]]; do
+        while [ "$presence" == "null" ] && [[ $(($run_time_seconds - $start_time_seconds)) -lt 600 ]]; do
             run_time_seconds=$(date +%s)
 
             cardano-cli query utxo --testnet-magic ${TESTNET_MAGIC} --address $2 --out-file tmp.utxos
             presence=$(jq -r ".[\"$tx_Id#0\"]" "tmp.utxos")
             sleep 5
         done
+    fi
+
+    if [ "$presence" != "null" ]; then
+        echo "Transaction ID: $tx_Id"
+    else
+        echo "Transaction submission failed."
     fi
     rm tmp.utxos
 }

@@ -23,7 +23,6 @@ cardano-cli conway transaction build \
     --mint-redeemer-file $REDEEMER_PATH/hnsdata.json \
     --tx-out $USER_ADDR+5000000+"10 $CS.$TN" \
     --out-file $raw
-exit
 cardano-cli conway transaction sign \
     --testnet-magic ${TESTNET_MAGIC} \
     --tx-body-file $raw \
