@@ -1,6 +1,6 @@
 name = "cdnsd/onchain"
 version = "0.0.0"
-compiler = "v1.1.13"
+compiler = "v1.1.19"
 plutus = "v3"
 license = "MIT"
 description = "Aiken contracts for project 'cdnsd/onchain'"

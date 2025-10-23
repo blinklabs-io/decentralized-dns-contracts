@@ -1,5 +1,5 @@
 const bcrypto = require('bcrypto');
-const { SHA256 } = bcrypto;
+const { SHA256, BLAKE2b } = bcrypto;
 const secp256k1 = bcrypto.secp256k1;
 const random = bcrypto.random;
 const fs = require('fs');
@@ -15,7 +15,8 @@ const pubKey = secp256k1.publicKeyCreate(privKey, true);
 
 // Message and hash
 const message = Buffer.from('hello-handshake', 'utf8');
-const hash = SHA256.digest(message);
+//const hash = SHA256.digest(message);
+const hash = BLAKE2b.digest(message);
 
 // Sign the message
 const [signature, recovery] = secp256k1.signRecoverable(hash, privKey);
